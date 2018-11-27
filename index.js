@@ -1,45 +1,36 @@
 const tmi = require("tmi.js");
 const options = require("./options"); //Your options file
-var WebSocketServer = require('websocket').server;
 var http = require('http');
 var connection=false;
 
-var server = http.createServer(function(request, response) {
-    console.log((new Date()) + ' Received request for ' + request.url);
-    response.writeHead(404);
-    response.end();
-});
+var firebase = require('firebase');
 
-server.listen(8080, function() {
-    console.log((new Date()) + ' Server is listening on port 8080');
-});
+var config = {
+  apiKey: "AIzaSyCSQjPTzOyNKW7GiV3fu7DwtyOfb1bqqRs",
+  authDomain: "twitch-hackathon-55882.firebaseapp.com",
+  databaseURL: "https://twitch-hackathon-55882.firebaseio.com",
+  projectId: "twitch-hackathon-55882",
+  storageBucket: "twitch-hackathon-55882.appspot.com",
+  messagingSenderId: "84835985605"
+};
 
-
-wsServer = new WebSocketServer({
-    httpServer: server,
-    autoAcceptConnections: false
-});
+firebase.initializeApp(config);
 
 
-wsServer.on('request', function(request) {
-	connection = request.accept('echo-protocol', request.origin);
-	console.log((new Date()) + ' Connection accepted.');
-	connection.on('close', function(reasonCode, description) {
-        	console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
-    	});
-});
+
 
 //Connect to twitch server
-const client = new tmi.client(options);
-client.connect();
+var client = {}
+client['tej'] = new tmi.client(options);
+client['tej'].connect();
 
 //on chat
-var dict = {}
-var lst = []
-client.on("chat", (channel, userstate, message, self) => {
+this.dict = {}
+this.lst = []
+client['tej'].on("chat", (channel, userstate, message, self) => {
 	var d = new Date();
 	key = d.toString().split(' ')[4];
-	if (!dict[key]) {
+	if (!this.dict[key]) {
 		dict[key] = [0,d];
 		lst.push(key);
 	}
@@ -47,9 +38,8 @@ client.on("chat", (channel, userstate, message, self) => {
 	cleanDictionary();
 	if (anomaly()){
 		console.log('ANOMALY DETECTED');
-	        if (connection){
-        	        connection.sendUTF('ANOMALY DETECTED');
-	        }
+		var anomalyRef = firebase.database().ref('anomalies');
+		//anomalyRef.update({[Date.now()]:true})
 	}
 })
 
@@ -62,12 +52,20 @@ function cleanDictionary() {
 
 function anomaly() {
 	var total = 0
-	var keys = Object.keys(dict)
-	for (key in dict) {
-		total += dict[key][0]
+	console.log(this.dict)
+	var keys = Object.keys(this.dict)
+	for (key in this.dict) {
+		total += this.dict[key][0]
 	}
 	ratio = total/Math.floor((Date.now() - dict[lst[0]][1])/1000)
 	console.log(ratio) 
-	return ratio < 0.35
+	return ratio < .7
 } 
 
+class clientname {
+	constructor(name){
+		const client = new tmi.client(options);
+		client.connect();	
+	}	
+	
+}

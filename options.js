@@ -1,4 +1,4 @@
-const options = {
+var options = {
   options: {
     debug: true
   },
@@ -9,7 +9,7 @@ const options = {
     username: "supertej",
     password: "oauth:k8re652e02ga33jwi4zthlmwi5m6z6"
   },
-  channels: ['dakotaz']
+  channels: ['pokimane']
 };
 
 
